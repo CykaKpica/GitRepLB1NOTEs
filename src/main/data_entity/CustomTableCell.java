@@ -5,6 +5,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import main.data_entity.table_data.AbstractData;
 
 import static java.lang.Integer.parseInt;
 
@@ -57,5 +58,39 @@ public class CustomTableCell<T> extends TableCell<T, String> {
                 cancelEdit();
             }
         });
+    }
+
+    public class IntegerCell<T> extends TableCell<T, Integer> {
+        private TextField textField;
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+
+        }
+
+        @Override
+        protected void updateItem(Integer item, boolean b) {
+            super.updateItem(item, b);
+            if(item == null || b){
+                setId("");
+            }
+            else if (false) {
+                setId("errorRow");
+            } else{
+                setId("");
+            }
+        }
+
+
+ /*       private void createTextField() {
+            textField = new TextField(getString());
+            textField.setOnKeyPressed(t -> {
+                if (t.getCode() == KeyCode.ENTER || t.getCode() == KeyCode.TAB) {
+                    commitEdit((textField.getText()));
+                } else if (t.getCode() == KeyCode.ESCAPE) {
+                    cancelEdit();
+                }
+            });
+        }*/
     }
 }

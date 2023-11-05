@@ -2,7 +2,7 @@ package main;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import main.data_entity.AbstractData;
+import main.data_entity.table_data.AbstractData;
 import main.data_entity.EditSession;
 import main.view.MainViewController;
 
@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -22,6 +23,8 @@ public class Loader {
         switch (MainViewController.getTableNow()){
             case RED:
                 return getRedTableData();
+            case CONTROL:
+                return getControlTableData();
             default:
                 return getExpTableData();
         }
@@ -32,6 +35,9 @@ public class Loader {
     }
     private static ObservableList<AbstractData> getExpTableData(){
         return Loader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.EXP), Loader.getDataObject(MainViewController.TableName.EXP));
+    }
+    private static ObservableList<AbstractData> getControlTableData(){
+        return Loader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.CONTROL), Loader.getDataObject(MainViewController.TableName.CONTROL));
     }
     private static BiConsumer<ObservableList<AbstractData>, ResultSet> getDataObject(MainViewController.TableName tableName){
         return (list, rs)->{
@@ -58,21 +64,34 @@ public class Loader {
         return properties;
     }
 
-
-
-    private static void packageQueryInTable(String query, Consumer<PreparedStatement> statementAction){
-
+    public static void packageQueryInTable(String query, Consumer<PreparedStatement> statementAction){
         try(Connection connection = DriverManager.getConnection(URL_TO_DB);
         PreparedStatement statement = connection.prepareStatement(query)){
             connection.setAutoCommit(false);
             statementAction.accept(statement);
+            statement.executeBatch();
             connection.commit();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
+    public static int singleInsertQuery(String query, Consumer<PreparedStatement> statementAction){
+        try(Connection connection = DriverManager.getConnection(URL_TO_DB);
+            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+            connection.setAutoCommit(false);
+            statementAction.accept(statement);
+            statement.executeBatch();
+            connection.commit();
+            try(ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+            throw new SQLException("Ошибка.");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /**
      * Получить пакет запросов на одно из действий: Insert, Update, Delete
      * Все объекты массива queryObjects должны соответвовать одной операции
@@ -81,14 +100,11 @@ public class Loader {
      * @return - пакет с запросами
      * @exception IllegalArgumentException - если объекты массива queryObjects содержат разные операции
      */
-    public static Consumer<PreparedStatement> getStatementAction(Consumer<EditSession.SaveInfo> statementAction, EditSession.SaveInfo[] queryObjects) throws IllegalArgumentException{
-        EditSession.ModifyAction anyAction = queryObjects[0].ACTION;
-        if (! Arrays.stream(queryObjects).allMatch(saveInfo -> saveInfo.ACTION.equals(anyAction))){
-            throw new IllegalArgumentException("Ошибка сохранения");
-        }
+/*    public static Consumer<PreparedStatement> getStatementAction(Consumer<PreparedStatement> statementAction,
+                                                                 Set<AbstractData> queryObjects) throws IllegalArgumentException{
         return (statement) -> {
-            for (EditSession.SaveInfo saveObject : queryObjects){
-                statementAction.accept(saveObject);
+            for (AbstractData data : queryObjects){
+                statementAction.accept(data);
                 try {
                     statement.addBatch();
                 } catch (SQLException e) {
@@ -96,28 +112,7 @@ public class Loader {
                 }
             }
         };
-    }
-    private static String getInsertQuery(String tableName, String[] columnNames){
-        StringBuilder query = new StringBuilder("INSERT INTO " + tableName + " (");
-        for(String columnName : columnNames){
-            query.append(columnName + ", ");
-        }
-        query.deleteCharAt(query.length()-1);
-        query.append(") VALUES (");
-        for (int i = 0; i < columnNames.length; i++){
-            query.append("?,");
-        }
-        query.deleteCharAt(query.length()-1);
-        query.append(")");
-        return query.toString();
-    }
-    private static String getUpdateQuery(String table, String[] columnNames, String idPrimaryKey){
-        StringBuilder query = new StringBuilder("UPDATE " + table + " SET ");
-        for(String columnName : columnNames){
-            query.append(columnName + "= ?,");
-        }
-        query.deleteCharAt(query.length()-1);
-        query.append(" WHERE " + idPrimaryKey + " = ?");
-        return query.toString();
-    }
+    }*/
+
+
 }

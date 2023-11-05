@@ -3,45 +3,53 @@ package main.view;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import main.SqlQueries;
 import main.data_entity.*;
+import main.data_entity.table_data.AbstractData;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MainViewController implements Initializable {
     public enum TableName {
-        EXP(SqlQueries.experimentTableName), RED(SqlQueries.redEngineTableName);
+        EXP(SqlQueries.experimentTableName),
+        RED(SqlQueries.redEngineTableName),
+        CONTROL(SqlQueries.controlTableName);
         public final String TABLE_NAME;
-        TableName(String tableName){
+
+        TableName(String tableName) {
             this.TABLE_NAME = tableName;
         }
     }
+
     private static TableName tableNow = TableName.EXP;
 
 
     public static TableName getTableNow() {
         return tableNow;
     }
-    private static void setTableNow(TableName table){
+
+    private static void setTableNow(TableName table) {
         MainViewController.tableNow = table;
     }
-    public static void relayTableNow(){
-        switch (tableNow){
+
+    public static void relayTableNow() {
+        switch (tableNow) {
             case EXP:
                 tableNow = TableName.RED;
                 break;
             case RED:
-                tableNow = TableName.EXP;
+                tableNow = TableName.CONTROL;
                 break;
+            default:
+                tableNow = TableName.EXP;
         }
     }
+
     @FXML
     private VBox rootVbox;
 
@@ -73,51 +81,74 @@ public class MainViewController implements Initializable {
         idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionItems());
     }
 
-    public static void updateTable(ObservableList items, TableColumn... columns){
+    public static void updateTable(ObservableList items, TableColumn... columns) {
         s_rootTable.getColumns().clear();
         s_rootTable.getItems().clear();
         addColumns(columns);
         addItems(items);
     }
-    private static void addColumns(TableColumn... columns){
+
+    private static void addColumns(TableColumn... columns) {
         s_rootTable.getColumns().addAll(columns);
-        /*Arrays.stream(columns).forEach(c->{
-            c.setCellFactory(p -> new CustomTableCell<>());
-        });*/
+        s_rootTable.setRowFactory(tv ->
+                new TableRow<AbstractData>() {
+                    @Override
+                    protected void updateItem(AbstractData item, boolean b) {
+                        graphicProperty().unbind();
+                        super.updateItem(item, b);
+                        if(item == null || b){
+                            setId("");
+                        }
+                        else if (!item.isFullCompletion()) {
+                            setId("errorRow");
+                        } else{
+                            setId("");
+                        }
+                    }
+                }
+        );
     }
-    private static void addItems(ObservableList list){
+
+    private static void addItems(ObservableList list) {
         s_rootTable.setItems(list);
     }
 
-    private static void addEmptyItem(){
+    private static void addEmptyItem() {
         AbstractData newRow;
-        switch (tableNow){
+        switch (tableNow) {
             case RED:
-                newRow = new Control("", "", "");
+                newRow = AbstractData.ofNull(TableName.RED);
+                break;
+            case CONTROL:
+                newRow = AbstractData.ofNull(TableName.CONTROL);
                 break;
             default:
-                newRow = new Experiment("", "", "", "");
+                newRow = AbstractData.ofNull(TableName.EXP);
         }
+        EditSession.addNewRow(newRow, MainViewController.getTableNow(), EditSession.ModifyAction.UPDATE);
         s_rootTable.getItems().add(newRow);
         s_rootTable.requestFocus();
-        int lastRow = s_rootTable.getItems().size()-1;
+        int lastRow = s_rootTable.getItems().size() - 1;
         s_rootTable.getSelectionModel().select(lastRow);
         s_rootTable.scrollTo(lastRow);
     }
 
-    private static void deleteSelectionItems(){
+    private static void deleteSelectionItems() {
         ObservableList<AbstractData> selectedItems = s_rootTable.getSelectionModel().getSelectedItems();
-        EditSession.addDeletedRows(selectedItems, tableNow.TABLE_NAME);
+        EditSession.addRows(selectedItems, tableNow, EditSession.ModifyAction.DELETE);
         s_rootTable.getItems().removeAll(selectedItems);
     }
 
 
-    private static void saveAction(){
+    private static void saveAction() {
         System.out.println(EditSession.getAllModifications());
+        EditSession.groupByRows();
+        Main.fillTableView();
     }
 
-    private static void fdgf(){
-        for( Object list : s_rootTable.getSelectionModel().getSelectedItems()){
+
+    private static void fdgf() {
+        for (Object list : s_rootTable.getSelectionModel().getSelectedItems()) {
 
         }
 

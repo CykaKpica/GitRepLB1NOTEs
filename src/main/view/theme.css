@@ -23,7 +23,6 @@
     /* border */
     -secondary-border-color: -secondary-color;
     -decorated-border-color: -linear-gradient-primary;
-    -primary-border-width: 1px;
     -secondary-border-width: 1.5px;
 
     -fx-primary-color: #007acc;
@@ -38,7 +37,7 @@
 /* главная панель */
 .rootBox{
     -fx-background-color: -primary-color;
-    -fx-border-width: -primary-border-width;
+    -fx-border-width: 1px;
     -fx-border-color: -dark-primary;
 }
 /* панель с заголовком формы */
@@ -140,6 +139,9 @@ Button: hover, ComboBox: hover, ChoiceBox: hover, TextField: hover, TextArea: ho
 .table-button:hover{
 	-fx-background-color: transparent;
 }
+#errorRow .text{
+    -fx-fill: red;
+}
 .table-view {
 	-fx-border-color: transparent;
 	-fx-background-color: transparent; /* OR  -fx-background-insets: 0.0; */
@@ -161,7 +163,7 @@ Button: hover, ComboBox: hover, ChoiceBox: hover, TextField: hover, TextArea: ho
 .table-row-cell:filled {
 	-fx-background-color: transparent;
 	-fx-border-color: transparent -fx-lightest-grey-color -fx-lightest-grey-color -fx-lightest-grey-color, transparent;
-	-fx-border-insets: 0, 1;
+	-fx-border-insets: 0, 0;
 }
 .table-row-cell:empty {
 	-fx-background-color: transparent;
