@@ -1,0 +1,264 @@
+* {
+    /* colors */
+    -primary-color: #f5f5f5;
+    -secondary-color: #b2b6b9;
+    -standard-color: transparent;
+    -warm-color: #fc5454;
+    -cold-color: #3349ab;
+    -linear-gradient-primary: linear-gradient(from 0.0% 0.0% to 100.0% 100.0%, #3349ab 0.0%, #fc5454  100.0%);
+    -dark-primary: black;
+
+	/* background */
+	-primary-bg: -primary-color;
+	-secondary-bg: -standard-color;
+
+    /* text options */
+
+
+    -primary-text-color: -dark-primary;
+    -secondary-text-color: -linear-gradient-primary;
+
+    -primary-text-family: Arial;
+
+    /* border */
+    -secondary-border-color: -secondary-color;
+    -decorated-border-color: -linear-gradient-primary;
+    -primary-border-width: 1px;
+    -secondary-border-width: 1.5px;
+
+    -fx-primary-color: #007acc;
+    	-fx-secondary-color: #4B6EAF;
+    	-fx-accent-color: #B6FF00;
+    	-fx-grey-color: #b9b9b9;
+    	-fx-light-grey-color: #d1d1d1;
+    	-fx-lightest-grey-color: #F9F9FB;
+
+    	-fx-focus-color: -fx-secondary-color;
+}
+/* главная панель */
+.rootBox{
+    -fx-background-color: -primary-color;
+    -fx-border-width: -primary-border-width;
+    -fx-border-color: -dark-primary;
+}
+/* панель с заголовком формы */
+.headerBox{
+    -fx-background-color: -standard-color;
+}
+.headerBox .label{
+    -fx-text-fill: -linear-gradient-primary;
+}
+/* главная кнопка вкладки (выделяется среди других) */
+.mainButton{
+    -fx-background-color: -standard-color;
+    -fx-border-color: black;
+    -fx-border-width: 1.5px;
+    -fx-text-fill: -linear-gradient-primary;
+    -fx-font-weight: bold;
+
+    -fx-pref-width: 270px;
+    -fx-pref-height: 30px;
+
+}
+.mainButton:hover{
+    -fx-border-color: -linear-gradient-primary;
+    -fx-text-fill: -primary-text-color;
+
+}
+/* кнопки редактирования содержимого таблиц  */
+.editExperimentButton{
+    -fx-pref-width: 230px;
+    -fx-pref-height: 30px;
+    -fx-border-color: -secondary-color;
+}
+/* кнопки меню */
+.menuButton{
+   /* -fx-pref-width: min;*/
+    -fx-pref-height: 40px;
+    -fx-border-width: 0;
+    -fx-font-family: -primary-text-family;
+}
+.menuButton: focused{
+    -fx-border-width: 1px;
+    -fx-border-color: -linear-gradient-primary;
+}
+
+Label {
+    -fx-text-fill: -primary-text-color;
+    -fx-font-family: -primary-text-family;
+}
+Line{
+    -fx-stroke: black;
+}
+Button, ComboBox, ChoiceBox, TextField, TextArea{
+    -fx-background-color: -standard-color;
+    -fx-border-color: -secondary-color;
+    -fx-border-width: 1px;
+    -fx-font-family: -primary-text-family;
+}
+Button: hover, ComboBox: hover, ChoiceBox: hover, TextField: hover, TextArea: hover{
+    -fx-border-color: -linear-gradient-primary;
+}
+.scroll-pane{
+    -fx-background-color: -primary-color;
+}
+.scroll-bar:horizontal, .scroll-bar:vertical{
+    -fx-background-color: -primary-color;
+}
+.increment-button, .decrement-button {
+    -fx-background-color: -primary-color;
+    -fx-border-color: -primary-color;
+}
+
+.scroll-bar:horizontal .track, .scroll-bar:vertical .track{
+    -fx-background-color: -primary-color;
+    -fx-border-color: -primary-color;
+    -fx-background-radius: 0;
+}
+
+.scroll-bar:horizontal .thumb, .scroll-bar:vertical .thumb {
+    -fx-background-color: -linear-gradient-primary;
+    -fx-background-radius: 5em;
+}
+.scroll-bar > .increment-button > .increment-arrow{
+    -fx-background-color: -cold-color;
+}
+.scroll-bar > .decrement-button > .decrement-arrow{
+    -fx-background-color: -warm-color;
+}
+.scroll-pane > .corner {
+    -fx-background-color: -standard-color;
+}
+.info_table .column-header-background{
+    -fx-visibility: hidden;
+    -fx-padding: -1em;
+}
+.table-button {
+	-fx-background-color: -fx-primary-color;
+	-fx-cursor: hand;
+}
+.table-button:hover{
+	-fx-background-color: transparent;
+}
+.table-view {
+	-fx-border-color: transparent;
+	-fx-background-color: transparent; /* OR  -fx-background-insets: 0.0; */
+}
+.table-view .column-header-background,
+.table-view .column-header-background .filler,
+.table-view .corner {
+	-fx-background-color: -fx-light-grey-color;
+}
+.table-view .column-header {
+	-fx-background-color: -fx-light-grey-color;
+	-fx-border-color: -fx-grey-color;
+}
+.table-view .column-header .label{
+	-fx-font-weight: bold;
+	-fx-alignment: center-left;
+}
+/* This is just magic */
+.table-row-cell:filled {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent -fx-lightest-grey-color -fx-lightest-grey-color -fx-lightest-grey-color, transparent;
+	-fx-border-insets: 0, 1;
+}
+.table-row-cell:empty {
+	-fx-background-color: transparent;
+}
+.table-row-cell:filled:hover {
+	-fx-background-color: -fx-light-grey-color;
+}
+.table-row-cell:filled:selected:hover {
+	-fx-background-color: -fx-light-grey-color;
+}
+.table-row-cell:filled:selected {
+  	-fx-background-color: #eaeaea;
+ 	-fx-background-insets: 0.0;
+	-fx-background-radius: 0.0;
+	-fx-border-color: -fx-light-grey-color;
+}
+.table-row-cell:filled:selected .table-cell {
+	-fx-text-fill: black;
+}
+.table-view .cell:filled{
+	-fx-cell-size: 30;
+	-fx-alignment: center-left;
+}
+.check-box-table-cell > .check-box:selected .box .mark {
+	-fx-background-color: white;
+}
+.check-box-table-cell > .check-box:selected .box{
+	-fx-background-color: -fx-accent-color;
+}
+.table-view .placeholder .label {
+	-fx-text-fill: red;
+	-fx-padding:20px;
+}
+
+.table-view .column-header .label{
+-fx-text-fill: black;
+}
+
+AnchorPane{
+	-fx-background-color:  #f5f5f5;
+}
+.saveButton{
+	-fx-background-color: -linear-gradient-primary;
+	-fx-text-fill: white;
+}
+
+.tab-header-area .tab-header-background {
+ 	-fx-background-color: -standard-color;
+}
+.tab-pane .tab:selected {
+	-fx-background-color: -standard-color;
+	-fx-border-color: -linear-gradient-primary;
+	-fx-background-insets: 0 0 0 0;
+	-fx-background-radius: 0 0 0 0;
+}
+.tab .tab-label {
+ 	-fx-alignment: CENTER;
+	-fx-text-fill: -primary-text-color;
+	-fx-padding: 0 1 0 1;
+}
+.tab-pane:top *.tab-header-area {
+	-fx-padding: 0 0 0 0;
+}
+.tab-pane {
+	-fx-background-color: -bg-default;
+/*	-fx-tab-min-width: 55px;*/
+	-fx-tab-min-height: 30px;
+	-fx-tab-max-height: 30px;
+}
+.tab-pane .tab {
+	-fx-background-color: -standard-color;
+}
+.tab-pane:focused .tab-header-area .headers-region .tab:selected .focus-indicator {
+ 	-fx-border-width: 0;
+	-fx-border-insets: 0 0 0 0;
+	-fx-border-radius: 0;
+}
+
+
+.check-box .box {
+
+-fx-background-color: -standard-color;
+-fx-border-color:black;
+-fx-border-radius:10px;
+}
+
+.check-box:selected .mark {
+
+-fx-background-color: white;
+-fx-border-radius:10px;
+/*
+-fx-shape: "M 41.9375 8.625 C 41.273438 8.648438 40.664063 9 40.3125 9.5625 L 21.5 38.34375 L 9.3125 27.8125 C 8.789063 27.269531 8.003906 27.066406 7.28125 27.292969 C 6.5625 27.515625 6.027344 28.125 5.902344 28.867188 C 5.777344 29.613281 6.078125 30.363281 6.6875 30.8125 L 20.625 42.875 C 21.0625 43.246094 21.640625 43.410156 22.207031 43.328125 C 22.777344 43.242188 23.28125 42.917969 23.59375 42.4375 L 43.6875 11.75 C 44.117188 11.121094 44.152344 10.308594 43.78125 9.644531 C 43.410156 8.984375 42.695313 8.589844 41.9375 8.625 Z";
+*/
+}
+.check-box:selected .box {
+-fx-background-color: -linear-gradient-primary;
+-fx-border-color: -standard-color;
+-fx-border-radius:10px;
+}
+
