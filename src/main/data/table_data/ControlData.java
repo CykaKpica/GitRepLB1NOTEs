@@ -1,8 +1,8 @@
-package main.data_entity.table_data;
+package main.data.table_data;
 
 import javafx.scene.control.TableColumn;
-import main.Loader;
-import main.SqlQueries;
+import main.data.Loader;
+import main.data.SqlQueries;
 import main.view.MainViewController;
 
 import java.sql.PreparedStatement;
@@ -10,14 +10,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public class Control extends RedEngine{
+public class ControlData extends RedEngineData {
 
+    /**
+     * Первичный ключ строки
+     */
     private Integer idControl;
+
     private String controlName;
 
-    Control(Integer idRedEngine, Integer idRedType, Integer idControl, Double chanceOpening, String controlName) {
+    ControlData(Integer idRedEngine, Integer idRedType, Integer idControl, Double chanceOpening, String controlName) {
         super(idRedEngine, idRedType, chanceOpening);
         this.idControl = idControl;
         this.controlName = controlName;
@@ -44,7 +47,7 @@ public class Control extends RedEngine{
         List<TableColumn> superList = new ArrayList<>(super.getColumns());
         superList.add(getUneditableIntegerColumn("idControl", "idControl"));
         superList.add(getStringColumn("controlName", "controlName", event->{
-            TableColumn.CellEditEvent<Control, String> expEvent = (TableColumn.CellEditEvent<Control, String >) event;
+            TableColumn.CellEditEvent<ControlData, String> expEvent = (TableColumn.CellEditEvent<ControlData, String >) event;
             expEvent.getRowValue().setControlName(expEvent.getNewValue());
         }));
         return superList;
@@ -56,7 +59,7 @@ public class Control extends RedEngine{
     }
     @Override
     public Consumer<PreparedStatement> insertStatementAction() {
-        final int idForeignKey = getIdForeignKey();
+        final int idForeignKey = getIdForeignKeyForInsert();
         return (statement) -> {
             try {
                 statement.setString(1, controlName);
@@ -67,24 +70,28 @@ public class Control extends RedEngine{
             }
         };
     }
-
     @Override
     public Consumer<PreparedStatement> updateStatementAction() {
+        /* плюс запрос для состаной таблицы  */
+        Loader.sendSingleQuery(SqlQueries.getUpdateQuery(super.getTableName()), statement -> super.updateStatementAction().accept(statement));
         return (statement) -> {
             try {
-
+                statement.setString(1, getControlName());
+                statement.setInt(2, getIdControl());
                 statement.addBatch();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         };
     }
-
     @Override
     public Consumer<PreparedStatement> deleteStatementAction() {
+        /* удалить сначала родителя */
+        Loader.sendSingleQuery(SqlQueries.getDeleteQuery(super.getTableName()), statement -> super.deleteStatementAction().accept(statement));
+
         return (statement) -> {
             try {
-                statement.setInt(1, getIdColumn());
+                statement.setInt(1, getIdControl());
                 statement.addBatch();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -92,11 +99,8 @@ public class Control extends RedEngine{
         };
     }
     @Override
-    public int getIdForeignKey() {
-        return Loader.singleInsertQuery(superQuery(), super.insertStatementAction());
-    }
-    public String superQuery(){
-        return SqlQueries.getInsertQuery(super.getTableName());
+    public int getIdForeignKeyForInsert() {
+        return Loader.sendSingleQuery(SqlQueries.getInsertQuery(super.getTableName()), super.insertStatementAction());
     }
 
     @Override

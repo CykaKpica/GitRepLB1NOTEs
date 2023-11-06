@@ -1,31 +1,64 @@
-package main.data_entity;
+package main.data;
 
-import javafx.collections.ObservableList;
-import main.Loader;
-import main.SqlQueries;
-import main.data_entity.table_data.AbstractData;
+import main.data.table_data.AbstractData;
+import main.view.Main;
 import main.view.MainViewController;
 
-import java.sql.PreparedStatement;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class EditSession {
     private EditSession(){}
 
+    /**
+     * Действие совершенное над строкой
+     */
     public enum ModifyAction{
         UPDATE, DELETE
     }
 
+    /**
+     * Информация о состоянии сохранения
+     */
+    public enum ModifyInfo{
+        SAVED("Все данные сохранены"), NOT_SAVED("Есть несохраненные данные");
+        public final String MSG;
+         ModifyInfo(String info){
+            this.MSG = info;
+        }
+    }
+    /**
+     * Информация о текущем состоянии сохранения
+     */
+    private static ModifyInfo savedStatus = ModifyInfo.SAVED;
+
+    public static ModifyInfo getSavedStatus() {
+        return savedStatus;
+    }
+
+    /**
+     * Массив несохраненных изменений таблицы
+     */
     private static Set<SaveInfo> MODIFY_INFO = new HashSet<>();
-/*
-    private static Map<Integer, AbstractData> MODIFY_ROWS = new HashMap<>();
-*/
+
+    /**
+     * Добавить несохранённые строки
+     * @param list - массив несохранённых строк
+     * @param table - таблица, к которой относятся строки
+     * @param action - дейсвтие, совершенное над всеми строками (одинаковое для всех)
+     */
     public static void addRows(Collection<AbstractData> list, MainViewController.TableName table, ModifyAction action){
         list.forEach(elem-> addNewRow(elem, table, action));
     }
+
+    /**
+     * Добавить новую несохранённую строку
+     * Если строка уже есть в несохранённых, а переданным действием является удаление, то действие изменяется на удаление,
+     * если строка при этом ещё не создана с БД, то она удаляется из несохранённых изменений
+     * @param data - несохранённая строка
+     * @param table - таблица, к которой относится несохранённая строка
+     * @param action - действие, совершённое над строкой
+     */
     public static void addNewRow(AbstractData data, MainViewController.TableName table, ModifyAction action){
         if(MODIFY_INFO.stream().map(mi->mi.DATA).anyMatch(d->d==data)){
             if(action.equals(ModifyAction.DELETE)){
@@ -41,10 +74,16 @@ public final class EditSession {
         }
         else{
             MODIFY_INFO.add(new SaveInfo(table, action, data));
+            savedStatus = ModifyInfo.NOT_SAVED;
+            Main.relaySavedStatus();
         }
     }
 
-    public static void groupByRows(){
+    /**
+     * Передать несохранённые строки в загрузчик.
+     * Неохранённые строки сортируются на пакеты INSERT, UPDATE, DELETE и передаются тремя пакетами для загрузки в БД.
+     */
+    public static void passUnsavedRowsToLoader(){
         Set<SaveInfo> delete = MODIFY_INFO.stream().filter(mi->mi.ACTION.equals(ModifyAction.DELETE)).collect(Collectors.toSet());
         Set<SaveInfo> insert = MODIFY_INFO.stream()
                 .filter(mi->mi.ACTION.equals(ModifyAction.UPDATE))
@@ -58,30 +97,23 @@ public final class EditSession {
         insert.removeAll(removeUncreatedRows);
         /* удалить из апдейтов строки, которые есть в делите */
         update.removeAll(delete);
-        if(! insert.isEmpty()){
-            AbstractData anyData = insert.stream().findAny().get().DATA;
-            if(anyData.isCompoundData()){
-                insert.forEach(si->{
-                    Loader.singleInsertQuery(SqlQueries.getInsertQuery(anyData.getTableName()), statement ->si.DATA.insertStatementAction().accept(statement));
-                });
-            }else {
-                String insertQuery = SqlQueries.getInsertQuery(anyData.getTableName());
-                System.out.println(insertQuery);
-                Loader.packageQueryInTable(insertQuery, statement -> insert.forEach(si->si.DATA.insertStatementAction().accept(statement)));
-            }
-        }
-        if(! update.isEmpty()){
-            String updateQuery = SqlQueries.getUpdateQuery(update.stream().findAny().get().TABLE);
-            System.out.println(updateQuery);
-            Loader.packageQueryInTable(updateQuery, statement -> update.forEach(saveInfo -> saveInfo.DATA.updateStatementAction().accept(statement)));
-        }
-        if(! delete.isEmpty()){
-            String deleteQuery = SqlQueries.getDeleteQuery(delete.stream().findAny().get().TABLE);
-            System.out.println(deleteQuery);
-            Loader.packageQueryInTable(deleteQuery, statement -> delete.forEach(si->si.DATA.deleteStatementAction().accept(statement)));
-        }
-        MODIFY_INFO.clear();
+        Loader.writeInsertPackage(insert);
+        Loader.writeUpdatePackage(update);
+        Loader.writeDeletePackage(delete);
+        removeModifyInfo();
     }
+
+    /**
+     * Очистить несохранённые данные и обновить статус сохранения
+     */
+    public static void removeModifyInfo(){
+        MODIFY_INFO.clear();
+        savedStatus = ModifyInfo.SAVED;
+        Main.relaySavedStatus();
+    }
+    /**
+     * Класс для хранения информации об измененной строке
+     */
     public static class SaveInfo{
         public final MainViewController.TableName TABLE;
         private ModifyAction ACTION;
@@ -107,13 +139,10 @@ public final class EditSession {
         }
     }
 
-    public static Integer getNewId(Set<Integer> existingId){
-        Integer newId = 1;
-        while(existingId.contains(newId)){
-            newId ++;
-        }
-        return newId;
-    }
+    /**
+     * Получить строчное представление всех несохраненных изменений
+     * @return все несохранённые изменения
+     */
     public static String getAllModifications(){
         return MODIFY_INFO.stream()
                 .map(SaveInfo::toString)

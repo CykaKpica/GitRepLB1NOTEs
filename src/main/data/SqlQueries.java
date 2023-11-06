@@ -1,41 +1,53 @@
-package main;
+package main.data;
 
 import main.view.MainViewController;
 
-import java.util.Arrays;
-
 public final class SqlQueries {
     private SqlQueries(){}
+
+    /**
+     * Названия таблиц
+     */
     public static final String redEngineTableName = "RedEngine";
     public static final String experimentTableName = "ExperimentBuild";
     public static final String controlTableName = "Control";
+
     /**
      * 0 - column with primary key
      */
-    public static final String[] redEngineColumnNames = {
+    private static final String[] redEngineColumnNames = {
             "idRedEngine",
             "idRedType",
             "chanceOpeningEnemy"};
     /**
      * 0 - column with primary key
      */
-    public static final String[] experimentColumnNames = {
+    private static final String[] experimentColumnNames = {
             "idExperimentBuild",
             "nameEB",
             "leadTime_sec",
             "periodBetweenReconnaissance_sec"};
+    /**
+     * 0 - column with primary key
+     */
     private static final String[] controlColumnNames = {"idControl", "nameControl"};
-    public static String[] getControlColumnNames(){
-        String[] columns = new String[redEngineColumnNames.length + controlColumnNames.length];
-        System.arraycopy(redEngineColumnNames, 0, columns, 0, redEngineColumnNames.length);
-        System.arraycopy(controlColumnNames, 0, columns, redEngineColumnNames.length, controlColumnNames.length);
-        return columns;
-    }
+
+    /**
+     * Получить массив имён столбцов без первого столбца
+     * @param columnNames - массив имён столбцов
+     * @return массив имён столбцов без первого столбца
+     */
     private static String[] getColumnNamesWithoutFirst(String[] columnNames){
         String[] columnsWithoutPrimaryKey = new String[columnNames.length-1];
         System.arraycopy(columnNames, 1, columnsWithoutPrimaryKey, 0, columnsWithoutPrimaryKey.length);
         return columnsWithoutPrimaryKey;
     }
+
+    /**
+     * Получить запрос типа SELECT, соответствующий переданной таблице
+     * @param table - переданная таблица
+     * @return запрос типа SELECT, соответствующий переданной таблице
+     */
     public static String getSelectQueryFromTable(MainViewController.TableName table){
         switch (table){
             case RED:
@@ -46,6 +58,12 @@ public final class SqlQueries {
                 return getSelectQueryFromTable(experimentTableName, experimentColumnNames);
         }
     }
+    /**
+     * Сгенерировать запрос типа SELECT, соответствующий переданным таблице и столбцам
+     * @param tableName - переданная таблица
+     * @param columnNames - переданные столбцы
+     * @return сгенерированный запрос типа SELECT
+     */
     private static String getSelectQueryFromTable(String tableName, String... columnNames){
         StringBuilder query = new StringBuilder("SELECT ");
         for (String columnName : columnNames){

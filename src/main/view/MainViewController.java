@@ -5,16 +5,50 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import main.SqlQueries;
-import main.data_entity.*;
-import main.data_entity.table_data.AbstractData;
+import main.data.SqlQueries;
+import main.data.*;
+import main.data.table_data.AbstractData;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MainViewController implements Initializable {
+
+    @FXML
+    private VBox rootVbox;
+
+    @FXML
+    private TableView<?> rootTable;
+
+    private static VBox s_rootVbox;
+    private static TableView s_rootTable;
+
+    @FXML
+    private Button idSaveButton;
+    @FXML
+    private Button idOtherTableButton;
+    @FXML
+    private Button idAddRowButton;
+
+    @FXML
+    private Button idDeleteRowButton;
+    @FXML
+    private Label saveInfoLabel;
+    private static Label s_saveInfoLabel;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        s_rootVbox = rootVbox;
+        s_rootTable = rootTable;
+        s_saveInfoLabel = saveInfoLabel;
+        saveInfoLabel.setText("Все данные сохранены");
+        rootTable.setEditable(true);
+        rootTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        idSaveButton.setOnAction(event -> saveAction());
+        idOtherTableButton.setOnAction(event -> Main.relayTable());
+        idAddRowButton.setOnAction(actionEvent -> addEmptyItem());
+        idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionItems());
+    }
     public enum TableName {
         EXP(SqlQueries.experimentTableName),
         RED(SqlQueries.redEngineTableName),
@@ -40,47 +74,15 @@ public class MainViewController implements Initializable {
     public static void relayTableNow() {
         switch (tableNow) {
             case EXP:
-                tableNow = TableName.RED;
-                break;
-            case RED:
                 tableNow = TableName.CONTROL;
                 break;
             default:
                 tableNow = TableName.EXP;
         }
     }
-
-    @FXML
-    private VBox rootVbox;
-
-    @FXML
-    private TableView<?> rootTable;
-
-    private static VBox s_rootVbox;
-    private static TableView s_rootTable;
-
-    @FXML
-    private Button idSaveButton;
-    @FXML
-    private Button idOtherTableButton;
-    @FXML
-    private Button idAddRowButton;
-
-    @FXML
-    private Button idDeleteRowButton;
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        s_rootVbox = rootVbox;
-        s_rootTable = rootTable;
-        rootTable.setEditable(true);
-        rootTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        idSaveButton.setOnAction(event -> saveAction());
-        idOtherTableButton.setOnAction(event -> Main.relayTable());
-        idAddRowButton.setOnAction(actionEvent -> addEmptyItem());
-        idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionItems());
+    static void relaySavedStatus(String status){
+        s_saveInfoLabel.setText(status);
     }
-
     public static void updateTable(ObservableList items, TableColumn... columns) {
         s_rootTable.getColumns().clear();
         s_rootTable.getItems().clear();
@@ -142,7 +144,7 @@ public class MainViewController implements Initializable {
 
     private static void saveAction() {
         System.out.println(EditSession.getAllModifications());
-        EditSession.groupByRows();
+        EditSession.passUnsavedRowsToLoader();
         Main.fillTableView();
     }
 

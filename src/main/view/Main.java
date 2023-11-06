@@ -1,15 +1,16 @@
 package main.view;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.stage.Stage;
-import main.Loader;
-import main.SqlQueries;
-import main.data_entity.table_data.AbstractData;
+import main.data.Loader;
+import main.data.EditSession;
+import main.data.table_data.AbstractData;
 
 import java.util.List;
 
@@ -25,7 +26,6 @@ public class Main extends Application {
         }
         launch();
     }
-
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -34,18 +34,33 @@ public class Main extends Application {
         stage.setResizable(false);
         Scene scene = new Scene(root);
         stage.setScene(scene);
-
         stage.show();
+
         fillTableView();
     }
 
+    /**
+     * Поменять источник данных в таблице формы
+     */
     static void relayTable(){
         MainViewController.relayTableNow();
+        EditSession.removeModifyInfo();
         fillTableView();
     }
+
+    /**
+     * Заполнить источник данных таблицы в форме
+     */
     static void fillTableView(){
         ObservableList<AbstractData> data = Loader.getTableData();
         List<TableColumn> columns = data.get(0).getColumns();
         MainViewController.updateTable(data, columns.toArray(new TableColumn[columns.size()]));
+    }
+
+    /**
+     * Поменять статус сохранения
+     */
+    public static void relaySavedStatus(){
+        Platform.runLater(() -> MainViewController.relaySavedStatus(EditSession.getSavedStatus().MSG));
     }
 }

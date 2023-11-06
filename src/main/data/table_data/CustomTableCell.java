@@ -1,11 +1,9 @@
-package main.data_entity;
+package main.data.table_data;
 
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import main.data_entity.table_data.AbstractData;
 
 import static java.lang.Integer.parseInt;
 

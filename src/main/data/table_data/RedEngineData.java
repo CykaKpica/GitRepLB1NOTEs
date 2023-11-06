@@ -1,4 +1,4 @@
-package main.data_entity.table_data;
+package main.data.table_data;
 
 import javafx.scene.control.TableColumn;
 import main.view.MainViewController;
@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class RedEngine extends AbstractData {
+public abstract class RedEngineData extends AbstractData {
     private Integer idRedType;
     private Double chanceOpening;
-    RedEngine(Integer idRedEngine, Integer idRedType, Double chanceOpening) {
+    RedEngineData(Integer idRedEngine, Integer idRedType, Double chanceOpening) {
         super(idRedEngine);
         this.idRedType = idRedType;
         this.chanceOpening = chanceOpening;
@@ -38,12 +38,12 @@ public class RedEngine extends AbstractData {
         return List.of(getUneditableIntegerColumn("idRedEngine", "idColumn"),
                 getIntegerColumn("idType", "idRedType", event -> {
                     //event.getRowValue().setIdRedType(event.getNewValue());
-                    TableColumn.CellEditEvent<RedEngine, Integer> expEvent = (TableColumn.CellEditEvent<RedEngine, Integer>) event;
+                    TableColumn.CellEditEvent<RedEngineData, Integer> expEvent = (TableColumn.CellEditEvent<RedEngineData, Integer>) event;
                     expEvent.getRowValue().setIdRedType(expEvent.getNewValue());
                 }),
                 getDoubleColumn("chanceOpening", "chanceOpening", event -> {
                     //event.getRowValue().setViewingRange(event.getNewValue());
-                    TableColumn.CellEditEvent<RedEngine, Double> expEvent = (TableColumn.CellEditEvent<RedEngine, Double>) event;
+                    TableColumn.CellEditEvent<RedEngineData, Double> expEvent = (TableColumn.CellEditEvent<RedEngineData, Double>) event;
                     expEvent.getRowValue().setChanceOpening(expEvent.getNewValue());
                 }));
     }

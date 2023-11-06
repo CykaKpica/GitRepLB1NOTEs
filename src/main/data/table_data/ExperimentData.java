@@ -1,21 +1,20 @@
-package main.data_entity.table_data;
+package main.data.table_data;
 
 import javafx.scene.control.TableColumn;
-import main.data_entity.EditSession;
+import main.data.EditSession;
 import main.view.MainViewController;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public final class Experiment extends AbstractData {
+public final class ExperimentData extends AbstractData {
     private String expName;
     private Integer leadTime;
     private Integer period;
 
-    Experiment(Integer idExperiment, String expName, Integer leadTime, Integer period) {
+    ExperimentData(Integer idExperiment, String expName, Integer leadTime, Integer period) {
         super(idExperiment);
         this.expName = expName;
         this.leadTime = leadTime;
@@ -49,17 +48,17 @@ public final class Experiment extends AbstractData {
     public List<TableColumn> getColumns() {
         return List.of(getUneditableIntegerColumn("idExperiment", "idColumn"),
                 getStringColumn("name", "name", event -> {
-                    TableColumn.CellEditEvent<Experiment, String> expEvent = (TableColumn.CellEditEvent<Experiment, String>) event;
+                    TableColumn.CellEditEvent<ExperimentData, String> expEvent = (TableColumn.CellEditEvent<ExperimentData, String>) event;
                     expEvent.getRowValue().setName(expEvent.getNewValue());
                     EditSession.addNewRow(this, MainViewController.getTableNow(), EditSession.ModifyAction.UPDATE);
                 }),
                 getIntegerColumn("lead", "leadTime", event -> {
-                    TableColumn.CellEditEvent<Experiment, Integer> expEvent = (TableColumn.CellEditEvent<Experiment, Integer>) event;
+                    TableColumn.CellEditEvent<ExperimentData, Integer> expEvent = (TableColumn.CellEditEvent<ExperimentData, Integer>) event;
                     expEvent.getRowValue().setLeadTime(expEvent.getNewValue());
                     EditSession.addNewRow(this, MainViewController.getTableNow(), EditSession.ModifyAction.UPDATE);
                 }),
                 getIntegerColumn("period", "period", event -> {
-                    TableColumn.CellEditEvent<Experiment, Integer> expEvent = (TableColumn.CellEditEvent<Experiment, Integer>) event;
+                    TableColumn.CellEditEvent<ExperimentData, Integer> expEvent = (TableColumn.CellEditEvent<ExperimentData, Integer>) event;
                     expEvent.getRowValue().setPeriod(expEvent.getNewValue());
 
                 }));
@@ -121,6 +120,11 @@ public final class Experiment extends AbstractData {
     @Override
     public boolean isCompoundData() {
         return false;
+    }
+
+    @Override
+    public int getIdForeignKeyForInsert() {
+        return 0;
     }
 
     @Override
