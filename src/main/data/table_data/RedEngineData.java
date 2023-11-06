@@ -108,6 +108,11 @@ public abstract class RedEngineData extends AbstractData {
     }
 
     @Override
+    public void setGeneratedPrimaryKey(int newId) {
+        this.setIdColumn(newId);
+    }
+
+    @Override
     public MainViewController.TableName getTableName() {
         return MainViewController.TableName.RED;
     }

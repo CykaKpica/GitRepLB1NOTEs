@@ -123,6 +123,11 @@ public final class ExperimentData extends AbstractData {
     }
 
     @Override
+    public void setGeneratedPrimaryKey(int newId) {
+        this.setIdColumn(newId);
+    }
+
+    @Override
     public int getIdForeignKeyForInsert() {
         return 0;
     }

@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import main.data.EditSession;
 import main.data.SqlQueries;
 import main.data.table_data.AbstractData;
+import main.view.Main;
 import main.view.MainViewController;
 
 import java.nio.file.Path;
@@ -134,7 +135,6 @@ public class TableLoader {
                 });
             }else {
                 String insertQuery = SqlQueries.getInsertQuery(anyData.getTableName());
-                System.out.println(insertQuery);
                 TableLoader.sendPackageQueryForTable(insertQuery, statement -> saveInfo.forEach(si->si.DATA.insertStatementAction().accept(statement)));
             }
         }
@@ -147,7 +147,6 @@ public class TableLoader {
     public static void writeUpdatePackage(Set<EditSession.SaveInfo> saveInfo){
         if(! saveInfo.isEmpty()){
             String updateQuery = SqlQueries.getUpdateQuery(saveInfo.stream().findAny().get().TABLE);
-            System.out.println(updateQuery);
             TableLoader.sendPackageQueryForTable(updateQuery, statement -> saveInfo.forEach(si-> si.DATA.updateStatementAction().accept(statement)));
         }
     }
@@ -159,7 +158,6 @@ public class TableLoader {
     public static void writeDeletePackage(Set<EditSession.SaveInfo> saveInfo){
         if(! saveInfo.isEmpty()){
             String deleteQuery = SqlQueries.getDeleteQuery(saveInfo.stream().findAny().get().TABLE);
-            System.out.println(deleteQuery);
             TableLoader.sendPackageQueryForTable(deleteQuery, statement -> saveInfo.forEach(si->si.DATA.deleteStatementAction().accept(statement)));
         }
     }

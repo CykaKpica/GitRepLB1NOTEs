@@ -83,8 +83,9 @@ public final class EditSession {
     /**
      * Передать несохранённые строки в загрузчик.
      * Неохранённые строки сортируются на пакеты INSERT, UPDATE, DELETE и передаются тремя пакетами для загрузки в БД.
+     * @return true если все данные для сохранения полностью заполнены
      */
-    public static void passUnsavedRowsToLoader(){
+    public static boolean passUnsavedRowsToLoader(){
         Set<SaveInfo> delete = MODIFY_INFO.stream().filter(mi->mi.ACTION.equals(ModifyAction.DELETE)).collect(Collectors.toSet());
         Set<SaveInfo> insert = MODIFY_INFO.stream()
                 .filter(mi->mi.ACTION.equals(ModifyAction.UPDATE))
@@ -98,10 +99,15 @@ public final class EditSession {
         insert.removeAll(removeUncreatedRows);
         /* удалить из апдейтов строки, которые есть в делите */
         update.removeAll(delete);
-        TableLoader.writeInsertPackage(insert);
-        TableLoader.writeUpdatePackage(update);
-        TableLoader.writeDeletePackage(delete);
-        removeModifyInfo();
+        if(insert.stream().allMatch(si->si.DATA.isFullCompletion()) &&
+        update.stream().allMatch(si->si.DATA.isFullCompletion())){
+            TableLoader.writeInsertPackage(insert);
+            TableLoader.writeUpdatePackage(update);
+            TableLoader.writeDeletePackage(delete);
+            removeModifyInfo();
+            return true;
+        }
+        return false;
     }
 
     /**

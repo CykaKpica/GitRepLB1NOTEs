@@ -151,7 +151,6 @@ public final class SqlQueries {
             query.append("?,");
         }
         query.append("?)");
-        System.out.println(query);
         return query.toString();
     }
     private static String getUpdateQuery(String table, String[] columnNames, String primaryKeyColumnName){

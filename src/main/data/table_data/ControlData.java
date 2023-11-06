@@ -41,9 +41,7 @@ public class ControlData extends RedEngineData {
         ControlData.controlTypeNamesId.clear();
         ControlData.controlTypeNames.addAll(typeNames);
         ControlData.controlTypeNamesId.putAll(typeNames.stream().collect(Collectors.toMap(ComboboxData::getCODE, cb->cb)));
-        ControlData.controlTypeNamesId.put(0, new ComboboxData("unknown", 0));
-        controlTypeNamesId.entrySet().forEach(es-> System.out.println(es.getKey() + " " + es.getValue()));
-    }
+        ControlData.controlTypeNamesId.put(0, new ComboboxData("unknown", 0));}
     public static ObservableList<ComboboxData> getControlTypeNames(){
         return controlTypeNames;
     }
@@ -114,6 +112,7 @@ public class ControlData extends RedEngineData {
     @Override
     public Consumer<PreparedStatement> insertStatementAction() {
         final int idForeignKey = getIdForeignKeyForInsert();
+        super.setGeneratedPrimaryKey(idForeignKey);
         return (statement) -> {
             try {
                 statement.setInt(1, idControlType);
@@ -170,6 +169,11 @@ public class ControlData extends RedEngineData {
     @Override
     public boolean isCompoundData() {
         return true;
+    }
+
+    @Override
+    public void setGeneratedPrimaryKey(int newId) {
+        this.setIdControl(newId);
     }
 
     @Override

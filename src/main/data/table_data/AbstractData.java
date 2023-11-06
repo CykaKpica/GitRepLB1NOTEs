@@ -96,6 +96,10 @@ public abstract class AbstractData {
     public abstract boolean isCompoundData();
 
     /**
+     * Присвоить объекту сгенерированный первичный ключ
+     */
+    public abstract void setGeneratedPrimaryKey(int newId);
+    /**
      * Получить созданное значение внешнего ключа родителя для вставки новой строки в таблицу БД
      *
      * @return созданное значение внешнего ключа родителя

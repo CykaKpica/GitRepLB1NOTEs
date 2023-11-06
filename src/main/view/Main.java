@@ -41,10 +41,6 @@ public class Main extends Application {
         fillTableView();
     }
 
-
-    private static void startFillData(){
-
-    }
     /**
      * Поменять источник данных в таблице формы
      */
@@ -68,5 +64,9 @@ public class Main extends Application {
      */
     public static void relaySavedStatus(){
         Platform.runLater(() -> MainViewController.setRelaySavedStatus(EditSession.getSavedStatus().MSG));
+    }
+
+    public static void runLaterAction(JustAction action){
+        Platform.runLater(action::accept);
     }
 }

@@ -44,7 +44,7 @@ public class MainViewController implements Initializable {
         saveInfoLabel.setText("Все данные сохранены");
         rootTable.setEditable(true);
         rootTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        idSaveButton.setOnAction(event -> saveButtonAction());
+        idSaveButton.setOnAction(event -> saveButtonAction(idSaveButton));
         idOtherTableButton.setOnAction(event -> Main.relayTable());
         idAddRowButton.setOnAction(actionEvent -> addEmptyRow());
         idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionRows());
@@ -167,11 +167,26 @@ public class MainViewController implements Initializable {
      * Дейсвтия кнопки сохранить
      * Оправить несохраненные изменения таблицы в загрузчик
      * Обновить данные таблицы (загрузить таблицу заново)
+     * Если данные неполные, то на 3 секунды кнопка сохранить становится красной, сохранение не проиходит
      */
-    private static void saveButtonAction() {
-        EditSession.passUnsavedRowsToLoader();
-        Main.fillTableView();
+    private static void saveButtonAction(Button saveButton) {
+        boolean isFullData = EditSession.passUnsavedRowsToLoader();
+        if(!isFullData){
+            new Thread(() -> {
+                try {
+                    Main.runLaterAction(() -> saveButton.setId("errorRow"));
+                    Thread.sleep(3000);
+                    Main.runLaterAction(()->saveButton.setId(""));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        }
+        else{
+            Main.fillTableView();
+        }
     }
+
 
 
 /*    private static void fdgf() {
