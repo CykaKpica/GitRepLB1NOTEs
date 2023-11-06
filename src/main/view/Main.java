@@ -8,7 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.stage.Stage;
-import main.data.Loader;
+import main.data.load.DictionaryLoader;
+import main.data.load.TableLoader;
 import main.data.EditSession;
 import main.data.table_data.AbstractData;
 
@@ -24,6 +25,7 @@ public class Main extends Application {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        DictionaryLoader.loadDictionary();
         launch();
     }
     @Override
@@ -39,6 +41,10 @@ public class Main extends Application {
         fillTableView();
     }
 
+
+    private static void startFillData(){
+
+    }
     /**
      * Поменять источник данных в таблице формы
      */
@@ -52,7 +58,7 @@ public class Main extends Application {
      * Заполнить источник данных таблицы в форме
      */
     static void fillTableView(){
-        ObservableList<AbstractData> data = Loader.getTableData();
+        ObservableList<AbstractData> data = TableLoader.getTableData();
         List<TableColumn> columns = data.get(0).getColumns();
         MainViewController.updateTable(data, columns.toArray(new TableColumn[columns.size()]));
     }
@@ -61,6 +67,6 @@ public class Main extends Application {
      * Поменять статус сохранения
      */
     public static void relaySavedStatus(){
-        Platform.runLater(() -> MainViewController.relaySavedStatus(EditSession.getSavedStatus().MSG));
+        Platform.runLater(() -> MainViewController.setRelaySavedStatus(EditSession.getSavedStatus().MSG));
     }
 }

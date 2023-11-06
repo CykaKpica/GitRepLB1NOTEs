@@ -1,7 +1,9 @@
-package main.data;
+package main.data.load;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import main.data.EditSession;
+import main.data.SqlQueries;
 import main.data.table_data.AbstractData;
 import main.view.MainViewController;
 
@@ -16,15 +18,15 @@ import java.util.function.Consumer;
  * Класс-загрузчик
  * Выгрузка и загрузка данных из БД
  */
-public class Loader {
+public class TableLoader {
     /**
      * Путь к БД
      */
-    private static final Path PATH_TO_DB = Paths.get(System.getProperty("user.dir") + "/src/main/data/ArtDB.accdb");
+    static final Path PATH_TO_DB = Paths.get(System.getProperty("user.dir") + "/src/main/data/ArtDB.accdb");
     /**
      * URL к БД
      */
-    public static final String URL_TO_DB = "jdbc:ucanaccess://" + PATH_TO_DB;
+    static final String URL_TO_DB = "jdbc:ucanaccess://" + PATH_TO_DB;
 
     /**
      * Получить данные, содержащиеся в таблице
@@ -33,11 +35,11 @@ public class Loader {
     public static ObservableList<AbstractData> getTableData(){
         switch (MainViewController.getTableNow()){
             case RED:
-                return Loader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.RED), Loader.getDataObject(MainViewController.TableName.RED));
+                return TableLoader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.RED), TableLoader.getDataObject(MainViewController.TableName.RED));
             case CONTROL:
-                return Loader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.CONTROL), Loader.getDataObject(MainViewController.TableName.CONTROL));
+                return TableLoader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.CONTROL), TableLoader.getDataObject(MainViewController.TableName.CONTROL));
             default:
-                return Loader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.EXP), Loader.getDataObject(MainViewController.TableName.EXP));
+                return TableLoader.getDataRows(SqlQueries.getSelectQueryFromTable(MainViewController.TableName.EXP), TableLoader.getDataObject(MainViewController.TableName.EXP));
         }
     }
 
@@ -128,12 +130,12 @@ public class Loader {
             AbstractData anyData = saveInfo.stream().findAny().get().DATA;
             if(anyData.isCompoundData()){
                 saveInfo.forEach(si->{
-                    Loader.sendSingleQuery(SqlQueries.getInsertQuery(anyData.getTableName()), statement ->si.DATA.insertStatementAction().accept(statement));
+                    TableLoader.sendSingleQuery(SqlQueries.getInsertQuery(anyData.getTableName()), statement ->si.DATA.insertStatementAction().accept(statement));
                 });
             }else {
                 String insertQuery = SqlQueries.getInsertQuery(anyData.getTableName());
                 System.out.println(insertQuery);
-                Loader.sendPackageQueryForTable(insertQuery, statement -> saveInfo.forEach(si->si.DATA.insertStatementAction().accept(statement)));
+                TableLoader.sendPackageQueryForTable(insertQuery, statement -> saveInfo.forEach(si->si.DATA.insertStatementAction().accept(statement)));
             }
         }
     }
@@ -146,7 +148,7 @@ public class Loader {
         if(! saveInfo.isEmpty()){
             String updateQuery = SqlQueries.getUpdateQuery(saveInfo.stream().findAny().get().TABLE);
             System.out.println(updateQuery);
-            Loader.sendPackageQueryForTable(updateQuery, statement -> saveInfo.forEach(si-> si.DATA.updateStatementAction().accept(statement)));
+            TableLoader.sendPackageQueryForTable(updateQuery, statement -> saveInfo.forEach(si-> si.DATA.updateStatementAction().accept(statement)));
         }
     }
 
@@ -158,7 +160,7 @@ public class Loader {
         if(! saveInfo.isEmpty()){
             String deleteQuery = SqlQueries.getDeleteQuery(saveInfo.stream().findAny().get().TABLE);
             System.out.println(deleteQuery);
-            Loader.sendPackageQueryForTable(deleteQuery, statement -> saveInfo.forEach(si->si.DATA.deleteStatementAction().accept(statement)));
+            TableLoader.sendPackageQueryForTable(deleteQuery, statement -> saveInfo.forEach(si->si.DATA.deleteStatementAction().accept(statement)));
         }
     }
 }

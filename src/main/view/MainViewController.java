@@ -44,10 +44,10 @@ public class MainViewController implements Initializable {
         saveInfoLabel.setText("Все данные сохранены");
         rootTable.setEditable(true);
         rootTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        idSaveButton.setOnAction(event -> saveAction());
+        idSaveButton.setOnAction(event -> saveButtonAction());
         idOtherTableButton.setOnAction(event -> Main.relayTable());
-        idAddRowButton.setOnAction(actionEvent -> addEmptyItem());
-        idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionItems());
+        idAddRowButton.setOnAction(actionEvent -> addEmptyRow());
+        idDeleteRowButton.setOnAction(actionEvent -> deleteSelectionRows());
     }
     public enum TableName {
         EXP(SqlQueries.experimentTableName),
@@ -67,9 +67,6 @@ public class MainViewController implements Initializable {
         return tableNow;
     }
 
-    private static void setTableNow(TableName table) {
-        MainViewController.tableNow = table;
-    }
 
     public static void relayTableNow() {
         switch (tableNow) {
@@ -80,17 +77,30 @@ public class MainViewController implements Initializable {
                 tableNow = TableName.EXP;
         }
     }
-    static void relaySavedStatus(String status){
+    static void setRelaySavedStatus(String status){
         s_saveInfoLabel.setText(status);
     }
+
+    /**
+     * Обвновить таблицу
+     * Очищаются столбцы и данные, добавляются переданные столбцы и данные
+     * @param items - новые данные
+     * @param columns - новые столбцы
+     */
     public static void updateTable(ObservableList items, TableColumn... columns) {
-        s_rootTable.getColumns().clear();
-        s_rootTable.getItems().clear();
         addColumns(columns);
         addItems(items);
     }
 
+    /**
+     * Добавить столбцы в таблицу
+     * Сначала удаляются прежние столбцы, затем добавляются новые
+     * Также для строк столбцов добавляется RowFactory, где проверяется, полностью ли заполнена строка,
+     * если строка заполнена неполностью, то текст в ней преобретает красный цвет
+     * @param columns - новые стобцы
+     */
     private static void addColumns(TableColumn... columns) {
+        s_rootTable.getColumns().clear();
         s_rootTable.getColumns().addAll(columns);
         s_rootTable.setRowFactory(tv ->
                 new TableRow<AbstractData>() {
@@ -111,11 +121,20 @@ public class MainViewController implements Initializable {
         );
     }
 
+    /**
+     * Добавить данные в таблицу
+     * Сначала очищаются старые, потом добавляются новые
+     * @param list - новые данные
+     */
     private static void addItems(ObservableList list) {
+        s_rootTable.getItems().clear();
         s_rootTable.setItems(list);
     }
 
-    private static void addEmptyItem() {
+    /**
+     * Вставить пустую строку, а также опустить скролл к новой строке
+     */
+    private static void addEmptyRow() {
         AbstractData newRow;
         switch (tableNow) {
             case RED:
@@ -135,21 +154,27 @@ public class MainViewController implements Initializable {
         s_rootTable.scrollTo(lastRow);
     }
 
-    private static void deleteSelectionItems() {
+    /**
+     * Удалить выбранные строки из таблицы и очистить выделение
+     */
+    private static void deleteSelectionRows() {
         ObservableList<AbstractData> selectedItems = s_rootTable.getSelectionModel().getSelectedItems();
         EditSession.addRows(selectedItems, tableNow, EditSession.ModifyAction.DELETE);
         s_rootTable.getItems().removeAll(selectedItems);
     }
 
-
-    private static void saveAction() {
-        System.out.println(EditSession.getAllModifications());
+    /**
+     * Дейсвтия кнопки сохранить
+     * Оправить несохраненные изменения таблицы в загрузчик
+     * Обновить данные таблицы (загрузить таблицу заново)
+     */
+    private static void saveButtonAction() {
         EditSession.passUnsavedRowsToLoader();
         Main.fillTableView();
     }
 
 
-    private static void fdgf() {
+/*    private static void fdgf() {
         for (Object list : s_rootTable.getSelectionModel().getSelectedItems()) {
 
         }
@@ -157,9 +182,9 @@ public class MainViewController implements Initializable {
         s_rootTable.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("Триггер на актив строку");
 
-            /*buttChangeEnStruc.setDisable(false);
-            botChangeFrStruc.setDisable(false);*/
+            *//*buttChangeEnStruc.setDisable(false);
+            botChangeFrStruc.setDisable(false);*//*
         });
-    }
+    }*/
 
 }

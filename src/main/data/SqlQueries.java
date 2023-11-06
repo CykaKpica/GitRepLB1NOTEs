@@ -30,7 +30,7 @@ public final class SqlQueries {
     /**
      * 0 - column with primary key
      */
-    private static final String[] controlColumnNames = {"idControl", "nameControl"};
+    private static final String[] controlColumnNames = {"idControl", "idControlType", "nameControl"};
 
     /**
      * Получить массив имён столбцов без первого столбца

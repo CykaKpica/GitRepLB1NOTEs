@@ -1,5 +1,6 @@
 package main.data;
 
+import main.data.load.TableLoader;
 import main.data.table_data.AbstractData;
 import main.view.Main;
 import main.view.MainViewController;
@@ -97,9 +98,9 @@ public final class EditSession {
         insert.removeAll(removeUncreatedRows);
         /* удалить из апдейтов строки, которые есть в делите */
         update.removeAll(delete);
-        Loader.writeInsertPackage(insert);
-        Loader.writeUpdatePackage(update);
-        Loader.writeDeletePackage(delete);
+        TableLoader.writeInsertPackage(insert);
+        TableLoader.writeUpdatePackage(update);
+        TableLoader.writeDeletePackage(delete);
         removeModifyInfo();
     }
 
